@@ -4,7 +4,7 @@
 - apache
 - mysql5.7
 
-## 環境構築
+## 環境構築（基礎）
 まず↓からファイルをダウンロードする
 - https://github.com/cakephp/cakephp/releases/tag/2.10.24https://github.com/cakephp/cakephp/releases/tag/2.10.24
 - https://github.com/cakephp/cakephp/tags
@@ -39,14 +39,29 @@ defaultからdatabase.phpを作成し、DBを記載する。
 $ sudo ./app/Console/cake server
 ```
 
+## 環境構築（docker）
+`docker-compose`を行い、`localhost:8021`にアクセスする。
+
+```
+$ docker-compose up -d --build
+```
+
+- ドキュメントルートを`app/webroot`にしているので`cake server`不要。
+
 ## mysqlコンテナ
-`docker exec -it {コンテナID} bash`でログイン。
-ログイン後、mysqlにログイン。
+`docker exec -it cake21 bash`でコンテナへ入る。
+その後、mysqlにログイン。
 
 userとpasswordはdocker-composeで変更可能。
 ```
+$ docker ps
+
+CONTAINER ID   IMAGE        COMMAND                  CREATED         STATUS          PORTS                  NAMES
+62e831116975   cake21-web   "docker-php-entrypoi…"   2 minutes ago   Up 2 minutes    0.0.0.0:8021->80/tcp   cake21
+$ docker exec -it cake21 bash
+
+// コンテナ内
 // passもuser
 $ mysql -u user -p
 ```
-初期設定で`career`DBができているので、データをインポートする。
 ※SequalAceなどを導入済みなら、使った方が早い

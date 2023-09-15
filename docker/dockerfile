@@ -1,0 +1,34 @@
+FROM php:5.6-apache
+COPY ./php/php.ini /usr/local/etc/php/
+
+# Update stretch repositories
+RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
+          -e 's|security.debian.org|archive.debian.org/|g' \
+          -e '/stretch-updates/d' /etc/apt/sources.list
+
+RUN apt-get update \
+  && apt-get install -y zlib1g-dev libpq-dev mariadb-client unzip libzip-dev \
+  && apt-get install -y git vim \
+  && docker-php-ext-install zip pdo pdo_mysql mysqli \
+  && docker-php-ext-enable mysqli
+
+RUN cd /etc/apache2/mods-enabled \
+    && ln -s ../mods-available/rewrite.load
+
+# composerバージョン指定 ex.--from=composer:latest
+COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
+ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV COMPOSER_HOME /composer
+ENV PATH $PATH:/composer/vendor/bin
+
+WORKDIR /var/www/html
+
+# nodeインストール
+# RUN apt-get -y install wget
+# RUN wget git.io/nodebrew
+# RUN perl nodebrew setup
+# RUN export PATH=$HOME/.nodebrew/current/bin:$PATH
+
+# documentrootの書き換え
+ENV APACHE_DOCUMENT_ROOT='/var/www/html/app/webroot'
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-enabled/000-default.conf
